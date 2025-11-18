@@ -1,9 +1,13 @@
 import OpenAI from 'openai'
 
+const apiKey = process.env.EMERGENT_LLM_KEY || 'sk-placeholder-key'
 const openai = new OpenAI({
-  apiKey: process.env.EMERGENT_LLM_KEY || '',
+  apiKey: apiKey,
   baseURL: 'https://llm.stagingllm.com/api/openai/v1',
 })
+
+// Check if API is properly configured
+const isConfigured = process.env.EMERGENT_LLM_KEY && process.env.EMERGENT_LLM_KEY !== 'sk-placeholder-key'
 
 export async function extractSkillsFromResume(resumeText: string): Promise<string[]> {
   try {
