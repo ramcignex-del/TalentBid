@@ -47,6 +47,10 @@ export async function generateProfileSummary(candidateData: {
   education?: string
   bio?: string
 }): Promise<string> {
+  if (!isConfigured) {
+    return `Experienced professional with ${candidateData.experienceYears} years in ${candidateData.skills.slice(0, 3).join(', ')}. ${candidateData.bio || 'Passionate about delivering high-quality work.'}`
+  }
+  
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-5',
