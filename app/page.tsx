@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Navbar from '@/components/ui/Navbar'
-import Button from '@/components/ui/Button'
 
 export default async function Home() {
   try {
