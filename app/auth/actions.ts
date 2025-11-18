@@ -56,19 +56,32 @@ export async function signup(formData: {
 }
 
 export async function signin(formData: { email: string; password: string }) {
-  const supabase = await createClient()
+  try {
+    const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+                         !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref')
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.email,
-    password: formData.password,
-  })
+    if (!isConfigured) {
+      return { error: 'Supabase is not configured. Please check SUPABASE_SETUP.md for instructions.' }
+    }
 
-  if (error) {
-    return { error: error.message }
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    revalidatePath('/', 'layout')
+    redirect('/dashboard')
+  } catch (error: any) {
+    console.error('Signin error:', error)
+    return { error: 'Sign in failed. Please check your Supabase configuration.' }
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
 }
 
 export async function signout() {
