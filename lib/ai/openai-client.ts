@@ -80,6 +80,10 @@ export async function generateRoleDescription(roleData: {
   perks?: string[]
   companyName: string
 }): Promise<string> {
+  if (!isConfigured) {
+    return `${roleData.companyName} is seeking a talented ${roleData.title}. This role offers a competitive salary of $${roleData.salary.toLocaleString()} and includes: ${roleData.perks?.join(', ') || 'comprehensive benefits package'}. The ideal candidate will bring expertise and passion to our team.`
+  }
+  
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-5',
