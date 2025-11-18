@@ -116,6 +116,24 @@ export async function calculateMatchScore(candidateData: {
   salaryOffer: number
   roleDescription: string
 }): Promise<number> {
+  if (!isConfigured) {
+    // Simple scoring algorithm when AI is not available
+    let score = 50
+    
+    // Salary match (up to 30 points)
+    const salaryRatio = bidData.salaryOffer / candidateData.minSalary
+    if (salaryRatio >= 1.2) score += 30
+    else if (salaryRatio >= 1.1) score += 20
+    else if (salaryRatio >= 1.0) score += 10
+    
+    // Experience bonus (up to 20 points)
+    if (candidateData.experienceYears >= 5) score += 20
+    else if (candidateData.experienceYears >= 3) score += 15
+    else score += 10
+    
+    return Math.min(100, Math.max(0, score))
+  }
+  
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-5',
