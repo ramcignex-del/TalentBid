@@ -9,37 +9,50 @@ export async function signup(formData: {
   password: string
   role: 'candidate' | 'employer'
 }) {
-  const supabase = await createClient()
+  try {
+    const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+                         !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref')
 
-  const { data, error } = await supabase.auth.signUp({
-    email: formData.email,
-    password: formData.password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      data: {
-        role: formData.role,
-      },
-    },
-  })
+    if (!isConfigured) {
+      return { error: 'Supabase is not configured. Please check SUPABASE_SETUP.md for instructions.' }
+    }
 
-  if (error) {
-    return { error: error.message }
-  }
+    const supabase = await createClient()
 
-  // Create profile record
-  if (data.user) {
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: data.user.id,
+    const { data, error } = await supabase.auth.signUp({
       email: formData.email,
-      role: formData.role,
+      password: formData.password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+        data: {
+          role: formData.role,
+        },
+      },
     })
 
-    if (profileError) {
-      return { error: profileError.message }
+    if (error) {
+      return { error: error.message }
     }
-  }
 
-  return { success: true, userId: data.user?.id }
+    // Create profile record
+    if (data.user) {
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: data.user.id,
+        email: formData.email,
+        role: formData.role,
+      })
+
+      if (profileError) {
+        return { error: profileError.message }
+      }
+    }
+
+    return { success: true, userId: data.user?.id }
+  } catch (error: any) {
+    console.error('Signup error:', error)
+    return { error: 'Signup failed. Please check your Supabase configuration.' }
+  }
 }
 
 export async function signin(formData: { email: string; password: string }) {
