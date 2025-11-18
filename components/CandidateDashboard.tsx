@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from './ui/Card'
 import Badge from './ui/Badge'
 import Button from './ui/Button'
-import BidDetailModal from './BidDetailModal-new'
+import BidDetailModal from './BidDetailModal'
 
 interface Bid {
   id: string
