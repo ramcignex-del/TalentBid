@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signin } from '../actions'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,80 +25,78 @@ export default function LoginPage() {
       setError(result.error)
       setLoading(false)
     }
-    // If successful, signin redirects automatically
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-indigo-600">
-            TalentBid
+          <Link href="/" className="inline-flex items-center space-x-2 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-2xl">TB</span>
+            </div>
+            <span className="text-3xl font-bold text-slate-900">TalentBid</span>
           </Link>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900" data-testid="login-title">Welcome Back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <h2 className="mt-6 text-3xl font-bold text-slate-900">Welcome Back</h2>
+          <p className="mt-2 text-slate-600">Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              id="email"
-              name="email"
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              label="Email Address"
               type="email"
               autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="you@example.com"
               data-testid="login-email-input"
             />
-          </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
+            <Input
+              label="Password"
               type="password"
               autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="••••••••"
               data-testid="login-password-input"
             />
+
+            {error && (
+              <div className="bg-red-50 border-2 border-red-200 text-red-700 p-4 rounded-xl text-sm" data-testid="login-error-message">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {error}
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              fullWidth
+              size="lg"
+              data-testid="login-submit-button"
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-slate-600">
+              Don't have an account?{' '}
+              <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-semibold" data-testid="login-signup-link">
+                Sign up
+              </Link>
+            </p>
           </div>
-
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm" data-testid="login-error-message">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-            data-testid="login-submit-button"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/auth/signup" className="text-indigo-600 hover:text-indigo-700 font-semibold" data-testid="login-signup-link">
-              Sign up
-            </Link>
-          </p>
         </div>
       </div>
     </div>
