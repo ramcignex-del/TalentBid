@@ -91,39 +91,52 @@ export default async function DashboardPage() {
       }
     }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-indigo-600">TalentBid</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-700">{user.email}</span>
-              <form action={signout}>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-                  data-testid="signout-button"
-                >
-                  Sign Out
-                </button>
-              </form>
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation */}
+        <nav className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16 items-center">
+              <div className="flex-shrink-0">
+                <h1 className="text-2xl font-bold text-indigo-600">TalentBid</h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-gray-700">{user.email}</span>
+                <form action={signout}>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                    data-testid="signout-button"
+                  >
+                    Sign Out
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      {/* Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {profile.role === 'candidate' ? (
-          <CandidateDashboard />
-        ) : (
-          <EmployerDashboard />
-        )}
+        {/* Dashboard Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {profile.role === 'candidate' ? (
+            <CandidateDashboard />
+          ) : (
+            <EmployerDashboard />
+          )}
+        </div>
       </div>
-    </div>
-  )
+    )
+  } catch (error) {
+    console.error('Dashboard error:', error)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-lg">
+          <h3 className="text-red-800 font-semibold mb-2">Dashboard Error</h3>
+          <p className="text-red-700 text-sm">
+            Unable to load dashboard. Please check your Supabase configuration and try again.
+          </p>
+        </div>
+      </div>
+    )
+  }
 }
