@@ -3,11 +3,22 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export default async function Home() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+                         !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref')
 
-  if (user) {
-    redirect('/dashboard')
+    if (isConfigured) {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        redirect('/dashboard')
+      }
+    }
+  } catch (error) {
+    console.error('Home page auth check error:', error)
+    // Continue to render landing page if auth check fails
   }
 
   return (
