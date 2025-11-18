@@ -10,6 +10,11 @@ const openai = new OpenAI({
 const isConfigured = process.env.EMERGENT_LLM_KEY && process.env.EMERGENT_LLM_KEY !== 'sk-placeholder-key'
 
 export async function extractSkillsFromResume(resumeText: string): Promise<string[]> {
+  if (!isConfigured) {
+    console.warn('OpenAI not configured, returning empty skills')
+    return []
+  }
+  
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-5',
