@@ -1,7 +1,7 @@
 'use client';
 
-import CandidateDashboard from '../../components/ui/CandidateDashboard';
-import EmployerDashboard from '../../components/ui/EmployerDashboard';
+import CandidateDashboard from '../../components/CandidateDashboard';
+import EmployerDashboard from '../../components/EmployerDashboard';
 
 export default function DashboardPage() {
   return (
@@ -11,8 +11,7 @@ export default function DashboardPage() {
         <div className="text-sm text-slate-500">Manage bids and offers</div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-
+      <div className="grid grid-cols-1 gap-6">
         <div className="rounded-xl bg-white p-6 shadow-sm">
           <CandidateDashboard />
         </div>
@@ -20,7 +19,6 @@ export default function DashboardPage() {
         <div className="rounded-xl bg-white p-6 shadow-sm">
           <EmployerDashboard />
         </div>
-
       </div>
     </div>
   );
