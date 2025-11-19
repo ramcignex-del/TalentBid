@@ -1,11 +1,10 @@
 // app/profile/setup/page.tsx
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/server';
 import ProfileForm from '../../../components/ProfileForm';
 
 export default async function ProfileSetupPage() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   const {
     data: { session },
