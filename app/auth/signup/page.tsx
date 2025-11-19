@@ -11,6 +11,7 @@ export default function SignupPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('talent'); // default
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -24,9 +25,8 @@ export default function SignupPage() {
         email,
         password,
         options: {
-          // You can set an email redirect URL here if using magic links or email confirmations.
-          // redirectTo: 'https://your-domain.com/welcome'
-        },
+          data: { role }
+        }
       });
 
       if (error) {
@@ -35,9 +35,10 @@ export default function SignupPage() {
         return;
       }
 
-      // After signup, redirect candidate to profile setup
-      // If your project requires email confirmation before accessing profile, you may want to show a "check email" screen instead.
-      router.push('/profile/setup');
+      // Email confirmation is off, so user is instantly logged in.
+      if (role === 'talent') router.push('/profile/setup');
+      else router.push('/employer/setup');
+
     } catch (err: any) {
       setErrorMsg(err?.message ?? 'Unknown error');
     } finally {
@@ -47,7 +48,7 @@ export default function SignupPage() {
 
   return (
     <div style={{ maxWidth: 480, margin: '3rem auto', padding: '1rem' }}>
-      <h1>Create account</h1>
+      <h1>Create Account</h1>
 
       <form onSubmit={handleSignup} style={{ display: 'grid', gap: 12 }}>
         <label>
@@ -73,15 +74,23 @@ export default function SignupPage() {
           />
         </label>
 
+        <label>
+          I am a:
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            style={{ width: '100%', padding: 8 }}
+          >
+            <option value="talent">Talent</option>
+            <option value="employer">Employer</option>
+          </select>
+        </label>
+
         <button disabled={loading} style={{ padding: '0.6rem 1rem' }}>
           {loading ? 'Creating account…' : 'Sign up'}
         </button>
 
-        {errorMsg && (
-          <div role="alert" style={{ color: 'crimson' }}>
-            {errorMsg}
-          </div>
-        )}
+        {errorMsg && <div style={{ color: 'crimson' }}>{errorMsg}</div>}
       </form>
 
       <p style={{ marginTop: 12 }}>
