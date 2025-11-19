@@ -47,7 +47,7 @@ export default function ProfileForm({ initialProfile }: Props) {
         bio,
         skills: skills
           .split(',')
-          .map((s) => s.trim())
+          .map((s: string) => s.trim())
           .filter(Boolean),
         location,
       };
