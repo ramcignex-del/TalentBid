@@ -1,6 +1,8 @@
 // app/dashboard/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import CandidateDashboard from '@/components/CandidateDashboard';
+import EmployerDashboard from '@/components/EmployerDashboard';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -14,31 +16,55 @@ export default async function DashboardPage() {
   }
 
   const user = session.user;
+  const userRole = user.user_metadata?.role;
 
-  const { data: profile } = await supabase
+  // Check for candidate profile
+  const { data: candidateProfile } = await supabase
     .from('candidates')
     .select('*')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  if (!profile) {
-    redirect('/profile/setup');
+  // Check for employer profile
+  const { data: employerProfile } = await supabase
+    .from('employers')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  // If no profile exists, redirect to setup
+  if (!candidateProfile && !employerProfile) {
+    if (userRole === 'employer') {
+      redirect('/employer/setup');
+    } else {
+      redirect('/profile/setup');
+    }
   }
 
+  // Render appropriate dashboard
+  if (candidateProfile) {
+    return <CandidateDashboard />;
+  }
+
+  if (employerProfile) {
+    return <EmployerDashboard />;
+  }
+
+  // Fallback
   return (
-    <div style={{ maxWidth: 900, margin: '2rem auto', padding: '1rem' }}>
-      <h1>Dashboard</h1>
-      <p>Welcome, {profile.full_name ?? user.email}!</p>
-      <div style={{ marginTop: 12 }}>
-        <p><strong>Title:</strong> {profile.title}</p>
-        <p><strong>Location:</strong> {profile.location}</p>
-        <p><strong>Skills:</strong> {Array.isArray(profile.skills) ? profile.skills.join(', ') : ''}</p>
-        <p><strong>Bio:</strong></p>
-        <p>{profile.bio}</p>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+        <h1 className="text-2xl font-bold text-slate-900 mb-4">Welcome to TalentBid</h1>
+        <p className="text-slate-600 mb-6">Please complete your profile to get started.</p>
+        <div className="space-x-4">
+          <a
+            href="/profile/setup"
+            className="inline-block px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
+          >
+            Complete Profile
+          </a>
+        </div>
       </div>
-      <p style={{ marginTop: 12 }}>
-        <a href="/profile/setup">Edit profile</a> · <a href="/auth/logout">Logout</a>
-      </p>
     </div>
   );
 }
