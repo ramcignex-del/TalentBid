@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '../../../lib/supabase/client';
 
 export default function LogoutPage() {
-  const supabase = getBrowserSupabase();
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
+      const supabase = getBrowserSupabase();
       const { error } = await supabase.auth.signOut();
       if (error) {
         setErrorMsg(error.message);
