@@ -11,7 +11,6 @@ type Props = {
 
 export default function ProfileForm({ initialProfile }: Props) {
   const router = useRouter();
-  const supabase = getBrowserSupabase();
 
   const [fullName, setFullName] = useState(initialProfile?.full_name ?? '');
   const [title, setTitle] = useState(initialProfile?.title ?? '');
