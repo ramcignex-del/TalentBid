@@ -20,7 +20,7 @@ export default function LoginPage() {
     setErrorMsg(null);
 
     try {
-      const { error, data } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -31,7 +31,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Successful login -> redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
       setErrorMsg(err?.message ?? 'Unknown error');
@@ -47,35 +46,19 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
         <label>
           Email
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-          />
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: 8 }} />
         </label>
 
         <label>
           Password
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-          />
+          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: 8 }} />
         </label>
 
         <button disabled={loading} style={{ padding: '0.6rem 1rem' }}>
           {loading ? 'Logging in…' : 'Log in'}
         </button>
 
-        {errorMsg && (
-          <div role="alert" style={{ color: 'crimson' }}>
-            {errorMsg}
-          </div>
-        )}
+        {errorMsg && <div style={{ color: 'crimson' }}>{errorMsg}</div>}
       </form>
 
       <p style={{ marginTop: 12 }}>
