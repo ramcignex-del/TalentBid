@@ -1,57 +1,121 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Card, { CardContent } from './ui/Card'
-import CandidateList from './CandidateList'
-import MyBidsList from './MyBidsList'
+import { useState, useEffect } from "react";
+import { Card } from "./ui/Card";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
+import PlaceBidModal from "./PlaceBidModal";
 
 export default function EmployerDashboard() {
-  const [activeTab, setActiveTab] = useState<'candidates' | 'bids'>('candidates')
+  const [candidates, setCandidates] = useState([]);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    async function fetchCandidates() {
+      try {
+        const res = await fetch("/api/candidates");
+        const data = await res.json();
+        setCandidates(data || []);
+      } catch (err) {
+        console.error("Error loading candidates:", err);
+      }
+    }
+
+    fetchCandidates();
+  }, []);
+
+  function openBid(candidate: any) {
+    setSelectedCandidate(candidate);
+    setModalOpen(true);
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-2" data-testid="employer-dashboard-title">
-          Employer Dashboard
-        </h1>
-        <p className="text-lg text-slate-600">Browse candidates and manage your bids</p>
-      </div>
+    <div className="pb-20">
 
-      {/* Tabs */}
-      <Card>
-        <CardContent className="p-0">
-          <nav className="flex border-b border-slate-200">
-            <button
-              onClick={() => setActiveTab('candidates')}
-              className={`flex-1 py-4 px-6 text-base font-semibold transition-colors ${
-                activeTab === 'candidates'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              data-testid="tab-candidates"
-            >
-              Browse Candidates
-            </button>
-            <button
-              onClick={() => setActiveTab('bids')}
-              className={`flex-1 py-4 px-6 text-base font-semibold transition-colors ${
-                activeTab === 'bids'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              data-testid="tab-my-bids"
-            >
-              My Bids
-            </button>
-          </nav>
-        </CardContent>
-      </Card>
+      {/* Section Header */}
+      <header className="mb-10">
+        <h2 className="text-2xl font-semibold text-slate-900">
+          Available Talent
+        </h2>
+        <p className="mt-2 text-slate-600">
+          Browse vetted candidates ready to join immediately. Click “Place Bid” to send a private salary bid.
+        </p>
+      </header>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === 'candidates' ? <CandidateList /> : <MyBidsList />}
-      </div>
+      {/* Candidate Grid */}
+      {candidates.length === 0 ? (
+        <div className="text-center text-slate-500 py-20">
+          No candidates found at the moment.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {candidates.map((c: any) => (
+            <Card key={c.id} className="group hover:shadow-md transition">
+              
+              {/* Name & Role */}
+              <h3 className="text-xl font-semibold text-slate-800">
+                {c.full_name || "Unnamed Candidate"}
+              </h3>
+
+              <p className="mt-1 text-slate-600">
+                {c.role || "Role not specified"}
+              </p>
+
+              {/* Experience */}
+              {c.experience && (
+                <p className="mt-1 text-slate-500 text-sm">
+                  {c.experience} years experience
+                </p>
+              )}
+
+              {/* Skills */}
+              {c.skills?.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {c.skills.map((skill: string) => (
+                    <Badge key={skill}>{skill}</Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Salary + Availability */}
+              <div className="mt-6 flex flex-col gap-1">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Min Expected</span>
+                  <span className="font-medium text-slate-800">
+                    ₹{c.min_salary?.toLocaleString() || "N/A"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Availability</span>
+                  <span className="font-medium text-slate-800">
+                    {c.availability || "Immediate"}
+                  </span>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="mt-8">
+                <Button
+                  className="w-full"
+                  onClick={() => openBid(c)}
+                >
+                  Place Bid
+                </Button>
+              </div>
+
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Bid Modal */}
+      <PlaceBidModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        candidate={selectedCandidate}
+      />
     </div>
-  )
+  );
 }
