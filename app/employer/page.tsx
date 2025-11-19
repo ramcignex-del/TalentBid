@@ -8,7 +8,7 @@ export default function EmployersPage() {
       {/* HERO */}
       <section className="bg-gradient-to-b from-white to-slate-50 py-32 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge variant="neutral" className="text-sm mb-6">
+          <Badge variant="default" className="text-sm mb-6">
             For Employers & Hiring Teams
           </Badge>
 
