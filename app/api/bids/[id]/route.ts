@@ -10,9 +10,9 @@ function redactForEmployer(bidRow: any) {
   return copy;
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
-  const bidId = params.id;
+  const { id: bidId } = await params;
 
   const {
     data: { user },
