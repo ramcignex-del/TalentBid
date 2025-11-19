@@ -9,7 +9,7 @@ export function Button({
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "ghost";
-}) {
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const variants = {
     primary: "bg-slate-900 text-white hover:bg-slate-800",
     ghost: "text-slate-700 hover:bg-slate-100",
