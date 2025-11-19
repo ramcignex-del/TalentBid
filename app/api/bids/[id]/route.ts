@@ -79,8 +79,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     // Determine viewer's employer record:
     const { data: viewerEmployer } = await supabase
       .from("employers")
-      .select("id, auth_user_id, visibility_mode")
-      .eq("auth_user_id", user.id)
+      .select("id, user_id, visibility_mode")
+      .eq("user_id", user.id)
       .limit(1)
       .maybeSingle();
 
