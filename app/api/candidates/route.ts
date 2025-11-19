@@ -31,6 +31,6 @@ export async function GET(req: Request) {
 }
 
 async function isEmployerUser(supabase: any, userId: string) {
-  const { data } = await supabase.from("employers").select("id").eq("auth_user_id", userId).limit(1).maybeSingle();
+  const { data } = await supabase.from("employers").select("id").eq("user_id", userId).limit(1).maybeSingle();
   return !!data;
 }
