@@ -34,23 +34,23 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   // If candidate owner requests -> include salary and employer details according to snapshot
   if (user) {
     // find whether user is the candidate owner or employer
-    // check candidates table for auth_user_id
+    // check candidates table for user_id
     const { data: candidateUser } = await supabase
       .from("candidates")
-      .select("auth_user_id, id")
+      .select("user_id, id")
       .eq("id", bidData.candidate_id)
       .limit(1)
       .maybeSingle();
 
     const { data: employerUser } = await supabase
       .from("employers")
-      .select("auth_user_id, id, visibility_mode")
+      .select("user_id, id, visibility_mode")
       .eq("id", bidData.employer_id)
       .limit(1)
       .maybeSingle();
 
-    const isCandidateOwner = candidateUser?.auth_user_id === user.id;
-    const isEmployerOwner = employerUser?.auth_user_id === user.id;
+    const isCandidateOwner = candidateUser?.user_id === user.id;
+    const isEmployerOwner = employerUser?.user_id === user.id;
 
     if (isCandidateOwner) {
       // Candidate sees salary and employer identity if snapshot allows
