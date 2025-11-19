@@ -4,11 +4,13 @@ export function Button({
   children,
   className,
   variant = "primary",
+  fullWidth = false,
   ...props
 }: {
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "ghost";
+  fullWidth?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const variants = {
     primary: "bg-slate-900 text-white hover:bg-slate-800",
@@ -20,6 +22,7 @@ export function Button({
       className={cn(
         "px-5 py-2.5 rounded-lg text-sm font-medium transition shadow-sm",
         variants[variant],
+        fullWidth && "w-full",
         className
       )}
       {...props}
