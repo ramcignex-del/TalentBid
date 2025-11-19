@@ -28,6 +28,7 @@ export default function ProfileForm({ initialProfile }: Props) {
     setErrorMsg(null);
 
     try {
+      const supabase = getBrowserSupabase();
       const {
         data: { user },
         error: userError,
