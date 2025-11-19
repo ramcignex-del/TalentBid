@@ -1,104 +1,75 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { signin } from '../actions'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
+import { useState } from "react";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+  function update(field: string, value: any) {
+    setForm((prev: any) => ({ ...prev, [field]: value }));
+  }
 
-    const result = await signin({ email, password })
+  async function submit() {
+    setLoading(true);
 
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-    }
+    await fetch("/api/auth/user", {
+      method: "POST",
+      body: JSON.stringify({ type: "login", ...form }),
+    });
+
+    setLoading(false);
+    window.location.href = "/dashboard";
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center space-x-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-2xl">TB</span>
-            </div>
-            <span className="text-3xl font-bold text-slate-900">TalentBid</span>
-          </Link>
-          <h2 className="mt-6 text-3xl font-bold text-slate-900">Welcome Back</h2>
-          <p className="mt-2 text-slate-600">Sign in to your account</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center px-6 bg-slate-50">
+      <Card className="w-full max-w-md p-10">
+        <h1 className="text-3xl font-semibold text-slate-900">Welcome back</h1>
+        <p className="text-slate-600 mt-2">
+          Sign in to access your dashboard and bids.
+        </p>
 
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="mt-8 space-y-6">
+          <div>
+            <label className="text-sm font-medium text-slate-700">Email</label>
             <Input
-              label="Email Address"
               type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              className="mt-2"
               placeholder="you@example.com"
-              data-testid="login-email-input"
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
             />
+          </div>
 
+          <div>
+            <label className="text-sm font-medium text-slate-700">
+              Password
+            </label>
             <Input
-              label="Password"
               type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              data-testid="login-password-input"
+              className="mt-2"
+              placeholder="•••••••"
+              value={form.password}
+              onChange={(e) => update("password", e.target.value)}
             />
+          </div>
 
-            {error && (
-              <div className="bg-red-50 border-2 border-red-200 text-red-700 p-4 rounded-xl text-sm" data-testid="login-error-message">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {error}
-                </div>
-              </div>
-            )}
+          <Button className="w-full mt-4" onClick={submit} disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </Button>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              fullWidth
-              size="lg"
-              data-testid="login-submit-button"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-slate-600">
-              Don't have an account?{' '}
-              <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-semibold" data-testid="login-signup-link">
-                Sign up
-              </Link>
-            </p>
+          <div className="text-center text-sm text-slate-600 mt-4">
+            Don’t have an account?{" "}
+            <a href="/auth/signup" className="text-slate-900 font-medium hover:underline">
+              Create one
+            </a>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
-  )
+  );
 }
