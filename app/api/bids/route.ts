@@ -1,9 +1,9 @@
 // app/api/bids/route.ts
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const supabase = createServerSupabaseClient(); // adapt to your wrapper
+  const supabase = await createClient();
   const body = await req.json();
 
   const { candidate_id, salary, message, reveal_employer = null } = body;
