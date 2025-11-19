@@ -1,6 +1,6 @@
 // app/api/bids/[id]/route.ts
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 function redactForEmployer(bidRow: any) {
   // For employers viewing other employers' bids: remove salary, keep limited info
@@ -11,7 +11,7 @@ function redactForEmployer(bidRow: any) {
 }
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const bidId = params.id;
 
   const {
