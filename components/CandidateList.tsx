@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/Card'
-import Badge from './ui/Badge'
-import Button from './ui/Button'
+import { Card } from './ui/Card'
+import { Badge } from './ui/Badge'
+import { Button } from './ui/Button'
 import PlaceBidModal from './PlaceBidModal'
 
 interface Candidate {
