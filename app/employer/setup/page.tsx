@@ -1,11 +1,10 @@
 // app/employer/setup/page.tsx
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/server';
 import React from 'react';
 
 export default async function EmployerSetupPage() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   const {
     data: { session },
