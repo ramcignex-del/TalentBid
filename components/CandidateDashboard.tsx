@@ -1,236 +1,111 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import Card, { CardHeader, CardTitle, CardDescription, CardContent } from './ui/Card'
-import Badge from './ui/Badge'
-import Button from './ui/Button'
-import BidDetailModal from './BidDetailModal'
-
-interface Bid {
-  id: string
-  employer: any
-  candidate: any
-  salary_offer: number
-  currency: string
-  role_title: string
-  role_description: string
-  perks: string[]
-  include_trial: boolean
-  trial_duration_days?: number
-  status: string
-  match_score: number
-  created_at: string
-}
+import { useEffect, useState } from "react";
+import { Card } from "./ui/Card";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
+import BidDetailModal from "./BidDetailModal";
 
 export default function CandidateDashboard() {
-  const [bids, setBids] = useState<Bid[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedBid, setSelectedBid] = useState<Bid | null>(null)
-  const [showModal, setShowModal] = useState(false)
+  const [bids, setBids] = useState([]);
+  const [selectedBid, setSelectedBid] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchBids()
-  }, [])
-
-  async function fetchBids() {
-    try {
-      const response = await fetch('/api/bids')
-      if (response.ok) {
-        const data = await response.json()
-        setBids(data)
+    async function loadBids() {
+      try {
+        const res = await fetch("/api/bids");
+        const data = await res.json();
+        setBids(data || []);
+      } catch (error) {
+        console.error("Error loading bids:", error);
       }
-    } catch (error) {
-      console.error('Failed to fetch bids:', error)
-    } finally {
-      setLoading(false)
     }
+
+    loadBids();
+  }, []);
+
+  function openDetails(bid: any) {
+    setSelectedBid(bid);
+    setModalOpen(true);
   }
 
-  async function handleAcceptBid(bidId: string) {
-    try {
-      const response = await fetch(`/api/bids/${bidId}/accept`, {
-        method: 'POST',
-      })
-
-      if (response.ok) {
-        await fetchBids()
-        setShowModal(false)
-      }
-    } catch (error) {
-      console.error('Failed to accept bid:', error)
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "accepted":
+        return <Badge variant="success">Accepted</Badge>;
+      case "rejected":
+        return <Badge variant="danger">Rejected</Badge>;
+      default:
+        return <Badge variant="warning">Pending</Badge>;
     }
-  }
-
-  async function handleRejectBid(bidId: string) {
-    try {
-      const response = await fetch(`/api/bids/${bidId}/reject`, {
-        method: 'POST',
-      })
-
-      if (response.ok) {
-        await fetchBids()
-        setShowModal(false)
-      }
-    } catch (error) {
-      console.error('Failed to reject bid:', error)
-    }
-  }
-
-  function openBidModal(bid: Bid) {
-    setSelectedBid(bid)
-    setShowModal(true)
-  }
-
-  const pendingBids = bids.filter(b => b.status === 'pending')
-  const acceptedBids = bids.filter(b => b.status === 'accepted')
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="pb-20">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-2" data-testid="candidate-dashboard-title">Your Bids</h1>
-        <p className="text-lg text-slate-600">Review and respond to employer offers</p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">{pendingBids.length}</div>
-              <div className="text-sm text-slate-600 font-medium">Pending Bids</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-600 mb-2">{acceptedBids.length}</div>
-              <div className="text-sm text-slate-600 font-medium">Accepted Offers</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-slate-900 mb-2">{bids.length}</div>
-              <div className="text-sm text-slate-600 font-medium">Total Bids</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Pending Bids */}
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-6" data-testid="pending-bids-section">
-          Pending Bids ({pendingBids.length})
+      <header className="mb-10">
+        <h2 className="text-2xl font-semibold text-slate-900">
+          Your Employer Bids
         </h2>
-        {pendingBids.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
+        <p className="mt-2 text-slate-600">
+          Review private employer bids, compare salaries, and choose the best fit.
+        </p>
+      </header>
+
+      {/* Empty State */}
+      {bids.length === 0 ? (
+        <div className="text-center text-slate-500 py-20">
+          You haven't received any bids yet.
+          <br />
+          <span className="text-slate-400 text-sm">
+            Once employers view your profile, their private offers will appear here.
+          </span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {bids.map((bid: any) => (
+            <Card key={bid.id} className="group hover:shadow-md transition">
+              {/* Employer Name */}
+              <h3 className="text-xl font-semibold text-slate-800">
+                {bid.employer_name || "Unnamed Employer"}
+              </h3>
+
+              {/* Status */}
+              <div className="mt-2">{getStatusBadge(bid.status)}</div>
+
+              {/* Salary Offered */}
+              <div className="mt-6 flex justify-between text-sm">
+                <span className="text-slate-500">Salary Offered</span>
+                <span className="font-medium text-slate-800">
+                  ₹{bid.salary?.toLocaleString() || "N/A"}
+                </span>
               </div>
-              <p className="text-slate-500" data-testid="no-pending-bids">No pending bids yet. Keep your profile active to receive offers!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {pendingBids.map((bid) => (
-              <Card key={bid.id} hover onClick={() => openBidModal(bid)} data-testid={`bid-card-${bid.id}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <CardTitle className="text-lg">{bid.employer?.company_name || 'Company'}</CardTitle>
-                    {bid.match_score && (
-                      <Badge variant="primary" size="sm">{bid.match_score}% Match</Badge>
-                    )}
-                  </div>
-                  <CardDescription>{bid.role_title}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="text-3xl font-bold text-blue-600">
-                      ${bid.salary_offer?.toLocaleString()}
-                      <span className="text-base text-slate-500 font-normal ml-2">/year</span>
-                    </div>
-                  </div>
 
-                  {bid.perks && bid.perks.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {bid.perks.slice(0, 3).map((perk, index) => (
-                        <Badge key={index} variant="secondary" size="sm">{perk}</Badge>
-                      ))}
-                      {bid.perks.length > 3 && (
-                        <Badge variant="secondary" size="sm">+{bid.perks.length - 3} more</Badge>
-                      )}
-                    </div>
-                  )}
+              {/* Notes */}
+              {bid.message && (
+                <p className="mt-4 text-sm text-slate-600 line-clamp-3">
+                  {bid.message}
+                </p>
+              )}
 
-                  {bid.include_trial && (
-                    <div className="flex items-center text-sm text-blue-600 font-medium">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {bid.trial_duration_days}-day paid trial
-                    </div>
-                  )}
-
-                  <div className="text-sm text-slate-500 pt-2 border-t border-slate-100">
-                    {new Date(bid.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Accepted Bids */}
-      {acceptedBids.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-6" data-testid="accepted-bids-section">
-            Accepted Offers
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {acceptedBids.map((bid) => (
-              <Card key={bid.id} onClick={() => openBidModal(bid)} hover>
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <CardTitle className="text-lg">{bid.employer?.company_name}</CardTitle>
-                    <Badge variant="success" size="sm">Accepted</Badge>
-                  </div>
-                  <CardDescription>{bid.role_title}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">
-                    ${bid.salary_offer?.toLocaleString()}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              {/* CTA */}
+              <div className="mt-8">
+                <Button className="w-full" onClick={() => openDetails(bid)}>
+                  View Details
+                </Button>
+              </div>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Bid Detail Modal */}
-      {showModal && selectedBid && (
-        <BidDetailModal
-          bid={selectedBid}
-          onClose={() => setShowModal(false)}
-          onAccept={handleAcceptBid}
-          onReject={handleRejectBid}
-        />
-      )}
+      {/* Modal */}
+      <BidDetailModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        bid={selectedBid}
+      />
     </div>
-  )
+  );
 }
