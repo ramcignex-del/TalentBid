@@ -130,9 +130,9 @@ export default function CandidateList() {
                 {candidate.profile_summary && (
                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">{candidate.profile_summary}</p>
                 )}
-              </CardContent>
+              </div>
 
-              <CardFooter>
+              <div className="mt-4 pt-4 border-t border-slate-200">
                 <Button
                   onClick={() => openBidModal(candidate)}
                   fullWidth
@@ -140,7 +140,7 @@ export default function CandidateList() {
                 >
                   Place Bid
                 </Button>
-              </CardFooter>
+              </div>
             </Card>
           ))}
         </div>
