@@ -1,19 +1,41 @@
-"use client";
+// app/auth/logout/page.tsx
+'use client';
 
-import { useEffect } from "react";
-import { supabase } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { getBrowserSupabase } from '../../../lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 export default function LogoutPage() {
+  const supabase = getBrowserSupabase();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    async function doSignOut() {
-      await supabase.auth.signOut();
-      router.push("/");
-    }
-    doSignOut();
-  }, [router]);
+    (async () => {
+      setLoading(true);
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          setErrorMsg(error.message);
+          setLoading(false);
+          return;
+        }
+        // redirect to login after successful sign out
+        router.replace('/auth/login');
+      } catch (err: any) {
+        setErrorMsg(err?.message ?? 'Unknown error');
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  return <div className="py-20 text-center">Signing out…</div>;
+  return (
+    <div style={{ maxWidth: 640, margin: '3rem auto', padding: '1rem' }}>
+      <h1>Signing out…</h1>
+      {loading && <p>Please wait — signing you out.</p>}
+      {errorMsg && <p style={{ color: 'crimson' }}>{errorMsg}</p>}
+    </div>
+  );
 }
