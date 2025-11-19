@@ -7,10 +7,10 @@ import { getBrowserSupabase } from '../../../lib/supabase/client';
 
 export default function ConfirmPage() {
   const router = useRouter();
-  const supabase = getBrowserSupabase();
 
   useEffect(() => {
     (async () => {
+      const supabase = getBrowserSupabase();
       // If session exists, route based on role; otherwise send to login
       const {
         data: { session },
