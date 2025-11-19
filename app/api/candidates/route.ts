@@ -13,6 +13,10 @@ export async function GET(req: Request) {
     .select("id, full_name, title, min_salary, skills, visibility_mode, availability")
     .order("created_at", { ascending: false });
 
+  if (!candidates) {
+    return NextResponse.json([]);
+  }
+
   // If viewer is employer, and candidate.visibility_mode === 'anonymous', replace name
   const isEmployerViewer = !!user && (await isEmployerUser(supabase, user.id));
 
