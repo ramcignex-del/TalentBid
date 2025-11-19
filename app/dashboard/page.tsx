@@ -1,57 +1,60 @@
-"use client";
+// app/dashboard/page.tsx
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import React from 'react';
 
-import { useEffect, useState } from "react";
-import PageContainer from "@/components/ui/PageContainer";
-import CandidateDashboard from "@/components/CandidateDashboard";
-import EmployerDashboard from "@/components/EmployerDashboard";
+export default async function DashboardPage() {
+  const supabase = createServerComponentClient({ cookies });
 
-export default function DashboardPage() {
-  // In the future, replace with real role detection using Supabase auth metadata.
-  const [role, setRole] = useState<"candidate" | "employer" | null>(null);
+  // Get SSR session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  useEffect(() => {
-    // TEMP LOGIC:
-    // Check localStorage or URL override for demo purposes.
-    // Later replaced by real user session/role.
-    const userType =
-      (localStorage.getItem("user-role") as "candidate" | "employer") ||
-      "candidate"; // default for now
+  if (!session || !session.user) {
+    redirect('/auth/login');
+  }
 
-    setRole(userType);
-  }, []);
+  const user = session.user;
 
-  if (!role) {
-    return (
-      <PageContainer>
-        <div className="py-20 text-center text-slate-600 text-lg">
-          Loading your dashboard…
-        </div>
-      </PageContainer>
-    );
+  // Load candidate profile
+  const { data: profile } = await supabase
+    .from('candidates')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!profile) {
+    // Redirect user to complete profile
+    redirect('/profile/setup');
   }
 
   return (
-    <PageContainer>
-      {/* Page Header */}
-      <header className="py-10">
-        <h1 className="text-3xl font-semibold text-slate-900">
-          {role === "candidate" ? "Candidate Dashboard" : "Employer Dashboard"}
-        </h1>
-        <p className="mt-2 text-slate-600 max-w-xl">
-          {role === "candidate"
-            ? "View bids from employers, update your availability, and manage your profile."
-            : "Browse immediate-joiner talent, place private bids, and track hiring progress."}
-        </p>
-      </header>
+    <div style={{ maxWidth: 900, margin: '2rem auto', padding: '1rem' }}>
+      <h1>Dashboard</h1>
+      <p>Welcome, {profile.full_name}!</p>
 
-      {/* Dashboard Body */}
-      <div className="mt-6">
-        {role === "candidate" ? (
-          <CandidateDashboard />
-        ) : (
-          <EmployerDashboard />
-        )}
+      <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #eee' }}>
+        <h3>Your profile</h3>
+        <p><strong>Title:</strong> {profile.title}</p>
+        <p><strong>Location:</strong> {profile.location}</p>
+
+        <p>
+          <strong>Skills:</strong> {Array.isArray(profile.skills) ? profile.skills.join(', ') : ''}
+        </p>
+
+        <p><strong>Bio:</strong></p>
+        <p>{profile.bio}</p>
       </div>
-    </PageContainer>
+
+      <p style={{ marginTop: 20 }}>
+        <a href="/profile/setup">Edit profile</a>
+      </p>
+
+      <p style={{ marginTop: 10 }}>
+        <a href="/auth/logout">Logout</a>
+      </p>
+    </div>
   );
 }
