@@ -11,7 +11,7 @@ export default function SignupPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('talent'); // default
+  const [role, setRole] = useState<'talent' | 'employer'>('talent');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -25,8 +25,8 @@ export default function SignupPage() {
         email,
         password,
         options: {
-          data: { role }
-        }
+          data: { role },
+        },
       });
 
       if (error) {
@@ -35,10 +35,9 @@ export default function SignupPage() {
         return;
       }
 
-      // Email confirmation is off, so user is instantly logged in.
+      // Email confirmation is off in your Supabase settings, so user becomes signed-in immediately.
       if (role === 'talent') router.push('/profile/setup');
       else router.push('/employer/setup');
-
     } catch (err: any) {
       setErrorMsg(err?.message ?? 'Unknown error');
     } finally {
@@ -48,39 +47,22 @@ export default function SignupPage() {
 
   return (
     <div style={{ maxWidth: 480, margin: '3rem auto', padding: '1rem' }}>
-      <h1>Create Account</h1>
+      <h1>Create account</h1>
 
       <form onSubmit={handleSignup} style={{ display: 'grid', gap: 12 }}>
         <label>
           Email
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-          />
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: 8 }} />
         </label>
 
         <label>
           Password
-          <input
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-          />
+          <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: 8 }} />
         </label>
 
         <label>
           I am a:
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-          >
+          <select value={role} onChange={(e) => setRole(e.target.value as any)} style={{ width: '100%', padding: 8 }}>
             <option value="talent">Talent</option>
             <option value="employer">Employer</option>
           </select>
